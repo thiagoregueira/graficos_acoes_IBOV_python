@@ -164,7 +164,9 @@ var_maior_cotacao = round(
 col4, col5, col6, col7 = st.columns(4)
 
 
-style_metric_cards(background_color="#46629e", border_left_color="#68ba9f")
+style_metric_cards(
+    background_color="#46629e", border_left_color="#68ba9f", border_color="#68ba9f"
+)
 
 
 with col4:
