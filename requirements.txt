@@ -2,6 +2,6 @@ pandas
 yfinance
 streamlit
 plotly
-streamlit_extras
+streamlit-extras
 
 
