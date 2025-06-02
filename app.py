@@ -1,18 +1,19 @@
 import streamlit as st
-import yfinance as yf
-import pandas as pd
-import plotly.graph_objects as go
-import datetime as dt
-from streamlit_extras.metric_cards import style_metric_cards
-
 
 # Configuração da página do Streamlit
+# MOVER st.set_page_config PARA O TOPO, LOGO APÓS 'import streamlit as st'
 st.set_page_config(
     layout="wide",
     page_title="Bolsa de Valores do Brasil",
     page_icon="📉",
     initial_sidebar_state="collapsed",
 )
+
+import yfinance as yf
+import pandas as pd
+import plotly.graph_objects as go
+import datetime as dt
+from streamlit_extras.metric_cards import style_metric_cards
 
 # Bootstrap
 st.markdown(
@@ -138,21 +139,26 @@ st.markdown("#")
 # Obtendo os dados da ação selecionada
 dados = yf.download(acao, start=data_inicio, end=data_fim)
 
+# Verificar se 'dados' está vazio e parar a execução se necessário
+if dados.empty:
+    st.error(f"Não foram encontrados dados para o ativo {acao} no período de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}.")
+    st.stop()
+
 
 # Métricas
 ult_atualizacao = dados.index.max().strftime("%d/%m/%Y")  # Data da última atualização
 ult_cotacao = round(
-    dados.loc[dados.index.max(), "Adj Close"], 2
+    dados["Close"].iloc[-1].item(), 2  # Garante que é um escalar antes de arredondar
 )  # última cotação encontrada
-menor_cotacao = round(dados["Adj Close"].min(), 2)  # Menor cotação do período
-maior_cotacao = round(dados["Adj Close"].max(), 2)  # Maior cotação do período
+menor_cotacao = round(dados["Close"].min().item(), 2)  # Garante que é um escalar
+maior_cotacao = round(dados["Close"].max().item(), 2)  # Garante que é um escalar
 primeira_cotacao = round(
-    dados.loc[dados.index.min(), "Adj Close"], 2
+    dados["Close"].iloc[0].item(), 2  # Garante que é um escalar antes de arredondar
 )  # Primeira cotação do período
 delta = round(
     ((ult_cotacao - primeira_cotacao) / primeira_cotacao) * 100, 2
 )  # Delta da cotação
-volume_total = dados["Volume"].sum()  # Volume total negociado durante o período
+volume_total = dados["Volume"].sum().item()  # Garante que é um escalar
 var_menor_cotacao = round(
     ((menor_cotacao - primeira_cotacao) / primeira_cotacao) * 100, 2
 )
@@ -228,7 +234,7 @@ with st.container():
             fig_area = go.Figure(
                 data=go.Scatter(
                     x=dados.index,
-                    y=dados["Adj Close"],
+                    y=dados["Close"], # Alterado de "Adj Close" para "Close"
                     fill="tozerox",
                 )
             )
