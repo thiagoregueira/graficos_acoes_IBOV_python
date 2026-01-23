@@ -1,6 +1,6 @@
 pandas
 yfinance
-streamlit
+streamlit>=1.40.0
 plotly
 streamlit-extras
 
